@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recomendación de Métodos de Estudio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #9b59b6;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .profile-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .results-section {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: white;
+        }
+        
+        select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-success:hover {
+            background: #219955;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .results-placeholder {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        
+        .results-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #bdc3c7;
+        }
+        
+        .recommendation-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s;
+        }
+        
+        .recommendation-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .recommendation-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .recommendation-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .recommendation-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .recommendation-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        
+        .explanation-section {
+            background: #e8f4fc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid var(--accent);
+        }
+        
+        .explanation-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .explanation-title i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-graduation-cap"></i> Sistema de Recomendación de Métodos de Estudio</h1>
+            <p>Descubre las técnicas de estudio más efectivas según tu perfil de aprendizaje</p>
+        </header>
+        
+        <div class="app-container">
+            <section class="profile-section">
+                <h2 class="section-title"><i class="fas fa-user-graduate"></i> Perfil del Estudiante</h2>
+                
+                <div class="form-group">
+                    <label for="estilo"><i class="fas fa-palette"></i> Estilo de aprendizaje</label>
+                    <select id="estilo">
+                        <option value="visual">Visual</option>
+                        <option value="auditivo">Auditivo</option>
+                        <option value="kinestesico">Kinestésico</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="concentracion"><i class="fas fa-brain"></i> Nivel de concentración</label>
+                    <select id="concentracion">
+                        <option value="bajo">Bajo</option>
+                        <option value="medio">Medio</option>
+                        <option value="alto">Alto</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tiempo"><i class="fas fa-clock"></i> Tiempo disponible</label>
+                    <select id="tiempo">
+                        <option value="menos_2_horas">Menos de 2 horas</option>
+                        <option value="2_4_horas">Entre 2 y 4 horas</option>
+                        <option value="mas_4_horas">Más de 4 horas</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="entorno"><i class="fas fa-volume-up"></i> Entorno de estudio</label>
+                    <select id="entorno">
+                        <option value="ruidoso">Ruidoso</option>
+                        <option value="moderado">Moderado</option>
+                        <option value="silencioso">Silencioso</option>
+                    </select>
+                </div>
+                
+                <button id="recomendarBtn" class="btn btn-success">
+                    <i class="fas fa-lightbulb"></i> Obtener Recomendaciones
+                </button>
+                
+                <div class="action-buttons">
+                    <button id="resetBtn" class="btn">
+                        <i class="fas fa-redo"></i> Reiniciar
+                    </button>
+                    <button id="infoBtn" class="btn btn-danger">
+                        <i class="fas fa-info-circle"></i> Acerca del Sistema
+                    </button>
+                </div>
+            </section>
+            
+            <section class="results-section">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Recomendaciones Personalizadas</h2>
+                
+                <div id="resultsPlaceholder" class="results-placeholder">
+                    <i class="fas fa-search"></i>
+                    <h3>Completa tu perfil para obtener recomendaciones</h3>
+                    <p>Selecciona tus características de estudio y haz clic en "Obtener Recomendaciones"</p>
+                </div>
+                
+                <div id="recommendationsContainer" class="hidden">
+                    <!-- Las recomendaciones se insertarán aquí dinámicamente -->
+                </div>
+                
+                <div id="explanationContainer" class="explanation-section hidden">
+                    <h3 class="explanation-title"><i class="fas fa-comment-alt"></i> Explicación</h3>
+                    <p id="explanationText"></p>
+                </div>
+            </section>
+        </div>
+        
+        <footer class="footer">
+            <p>Sistema Basado en Reglas - Inteligencia Artificial</p>
+            <p>Tecnológico Nacional de México - Campus Orizaba</p>
+        </footer>
+    </div>
+
+    <script>
+        // Definición de reglas y enlaces
+        const reglas = [
+            {
+                condicion: { estilo_aprendizaje: "visual" },
+                acciones: [
+                    { nombre: "Mapas mentales", url: "https://www.mindmeister.com/" },
+                    { nombre: "Diagramas de flujo", url: "https://www.draw.io/" },
+                    { nombre: "Esquemas gráficos", url: "https://www.lucidchart.com/" }
+                ]
+            },
+            {
+                condicion: { estilo_aprendizaje: "auditivo" },
+                acciones: [
+                    { nombre: "Grabar y escuchar apuntes", url: "https://www.audacityteam.org/" },
+                    { nombre: "Explicar en voz alta", url: "https://www.online-convert.com/audio-recorder" },
+                    { nombre: "Estudio grupal con discusión", url: "https://zoom.us/" }
+                ]
+            },
+            {
+                condicion: { estilo_aprendizaje: "kinestesico" },
+                acciones: [
+                    { nombre: "Práctica con ejercicios", url: "https://www.khanacademy.org/" },
+                    { nombre: "Role-playing de conceptos", url: "https://www.tabletopia.com/" },
+                    { nombre: "Estudio con movimiento", url: "https://www.nike.com/ntc-app" }
+                ]
+            },
+            {
+                condicion: { nivel_concentracion: "bajo" },
+                acciones: [
+                    { nombre: "Técnica Pomodoro", url: "https://pomofocus.io/" },
+                    { nombre: "Estudio en bloques cortos", url: "https://www.focusbooster.com/" },
+                    { nombre: "Ejercicios de respiración", url: "https://www.calm.com/" }
+                ]
+            },
+            {
+                condicion: { nivel_concentracion: "medio" },
+                acciones: [
+                    { nombre: "Estudio balanceado", url: "https://www.notion.so/" },
+                    { nombre: "Descansos programados", url: "https://www.forestapp.cc/" },
+                    { nombre: "Objetivos diarios", url: "https://todoist.com/" }
+                ]
+            },
+            {
+                condicion: { nivel_concentracion: "alto" },
+                acciones: [
+                    { nombre: "Sesiones largas de estudio", url: "https://www.calnewport.com/books/deep-work/" },
+                    { nombre: "Inmersión profunda", url: "https://freedom.to/" },
+                    { nombre: "Resolución de problemas complejos", url: "https://leetcode.com/" }
+                ]
+            },
+            {
+                condicion: { tiempo_disponible: "menos_2_horas" },
+                acciones: [
+                    { nombre: "Enfoque en puntos clave", url: "https://evernote.com/" },
+                    { nombre: "Resúmenes ejecutivos", url: "https://www.summarize.tech/" },
+                    { nombre: "Repaso rápido", url: "https://apps.ankiweb.net/" }
+                ]
+            },
+            {
+                condicion: { tiempo_disponible: "2_4_horas" },
+                acciones: [
+                    { nombre: "Estudio balanceado", url: "https://www.notion.so/" },
+                    { nombre: "Práctica guiada", url: "https://www.edx.org/" },
+                    { nombre: "Auto-evaluación", url: "https://quizlet.com/" }
+                ]
+            },
+            {
+                condicion: { tiempo_disponible: "mas_4_horas" },
+                acciones: [
+                    { nombre: "Estudio en profundidad", url: "https://openlibrary.org/" },
+                    { nombre: "Práctica extensiva", url: "https://www.udemy.com/" },
+                    { nombre: "Múltiples recursos", url: "https://scholar.google.com/" }
+                ]
+            },
+            {
+                condicion: { entorno_estudio: "ruidoso" },
+                acciones: [
+                    { nombre: "Auriculares con audio ambiental", url: "https://www.noisli.com/" },
+                    { nombre: "App Forest para concentración", url: "https://www.forestapp.cc/" },
+                    { nombre: "Estudio en biblioteca", url: "https://www.worldcat.org/" }
+                ]
+            },
+            {
+                condicion: { entorno_estudio: "moderado" },
+                acciones: [
+                    { nombre: "Música instrumental", url: "https://www.youtube.com/results?search_query=musica+clasica+para+estudiar" },
+                    { nombre: "Establecer un horario fijo", url: "https://calendar.google.com/" },
+                    { nombre: "Organización del espacio", url: "https://trello.com/" }
+                ]
+            },
+            {
+                condicion: { entorno_estudio: "silencioso" },
+                acciones: [
+                    { nombre: "Lectura profunda", url: "https://www.gutenberg.org/" },
+                    { nombre: "Meditación antes de estudiar", url: "https://www.headspace.com/" },
+                    { nombre: "Ambiente de estudio fijo", url: "https://www.ikea.com/" }
+                ]
+            }
+        ];
+
+        // Elementos DOM
+        const estiloSelect = document.getElementById('estilo');
+        const concentracionSelect = document.getElementById('concentracion');
+        const tiempoSelect = document.getElementById('tiempo');
+        const entornoSelect = document.getElementById('entorno');
+        const recomendarBtn = document.getElementById('recomendarBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const resultsPlaceholder = document.getElementById('resultsPlaceholder');
+        const recommendationsContainer = document.getElementById('recommendationsContainer');
+        const explanationContainer = document.getElementById('explanationContainer');
+        const explanationText = document.getElementById('explanationText');
+
+        // Función para generar recomendaciones
+        function generarRecomendaciones() {
+            // Obtener valores del formulario
+            const perfil = {
+                estilo_aprendizaje: estiloSelect.value,
+                nivel_concentracion: concentracionSelect.value,
+                tiempo_disponible: tiempoSelect.value,
+                entorno_estudio: entornoSelect.value
+            };
+
+            // Aplicar reglas
+            const recomendaciones = [];
+            
+            reglas.forEach(regla => {
+                let coincide = true;
+                for (const [clave, valor] of Object.entries(regla.condicion)) {
+                    if (perfil[clave] !== valor) {
+                        coincide = false;
+                        break;
+                    }
+                }
+                
+                if (coincide) {
+                    recomendaciones.push(...regla.acciones);
+                }
+            });
+
+            // Eliminar duplicados
+            const recomendacionesUnicas = [];
+            const nombresVistos = new Set();
+            
+            recomendaciones.forEach(rec => {
+                if (!nombresVistos.has(rec.nombre)) {
+                    nombresVistos.add(rec.nombre);
+                    recomendacionesUnicas.push(rec);
+                }
+            });
+
+            // Mostrar resultados
+            mostrarResultados(recomendacionesUnicas, perfil);
+        }
+
+        // Función para mostrar resultados
+        function mostrarResultados(recomendaciones, perfil) {
+            // Ocultar placeholder y mostrar contenedor de resultados
+            resultsPlaceholder.classList.add('hidden');
+            recommendationsContainer.classList.remove('hidden');
+            explanationContainer.classList.remove('hidden');
+            
+            // Limpiar contenedor
+            recommendationsContainer.innerHTML = '';
+            
+            // Agregar cada recomendación
+            recomendaciones.forEach((rec, index) => {
+                const card = document.createElement('div');
+                card.className = 'recommendation-card';
+                
+                card.innerHTML = `
+                    <h3 class="recommendation-title">
+                        <i class="fas fa-lightbulb"></i> ${rec.nombre}
+                    </h3>
+                    <p>${obtenerDescripcion(rec.nombre)}</p>
+                    <a href="${rec.url}" target="_blank" class="recommendation-link">
+                        <i class="fas fa-external-link-alt"></i> Explorar recurso
+                    </a>
+                `;
+                
+                recommendationsContainer.appendChild(card);
+            });
+            
+            // Actualizar explicación
+            actualizarExplicacion(perfil);
+        }
+
+        // Función para obtener descripción de la recomendación
+        function obtenerDescripcion(nombre) {
+            const descripciones = {
+                "Mapas mentales": "Organiza tus ideas de forma visual conectando conceptos relacionados.",
+                "Diagramas de flujo": "Representa procesos o secuencias de pasos de manera gráfica.",
+                "Esquemas gráficos": "Crea representaciones visuales que muestren la estructura de la información.",
+                "Grabar y escuchar apuntes": "Graba tus apuntes y escúchalos para reforzar el aprendizaje auditivo.",
+                "Explicar en voz alta": "Explica los conceptos en voz alta como si estuvieras enseñando a alguien.",
+                "Estudio grupal con discusión": "Reúnete con compañeros para discutir y debatir los temas de estudio.",
+                "Práctica con ejercicios": "Aplica los conceptos mediante la resolución de ejercicios prácticos.",
+                "Role-playing de conceptos": "Representa físicamente los conceptos para una mejor internalización.",
+                "Estudio con movimiento": "Combina el estudio con movimiento físico para mejorar la retención.",
+                "Técnica Pomodoro": "Divide tu tiempo en intervalos de estudio y descanso (ej: 25/5).",
+                "Estudio en bloques cortos": "Organiza sesiones de estudio más cortas para mantener la concentración.",
+                "Ejercicios de respiración": "Practica ejercicios de respiración para mejorar el enfoque y reducir el estrés.",
+                "Estudio balanceado": "Combina diferentes métodos de estudio para un aprendizaje más completo.",
+                "Descansos programados": "Incluye pausas regulares en tu rutina de estudio.",
+                "Objetivos diarios": "Establece metas específicas para cada sesión de estudio.",
+                "Sesiones largas de estudio": "Dedica periodos prolongados de tiempo para un estudio profundo.",
+                "Inmersión profunda": "Elimina distracciones y sumérgete completamente en el material.",
+                "Resolución de problemas complejos": "Enfréntate a problemas desafiantes para desarrollar habilidades avanzadas.",
+                "Enfoque en puntos clave": "Identifica y prioriza los conceptos más importantes del tema.",
+                "Resúmenes ejecutivos": "Crea resúmenes concisos que capturen la esencia del material.",
+                "Repaso rápido": "Realiza sesiones breves de repaso para consolidar el aprendizaje.",
+                "Práctica guiada": "Sigue tutoriales o ejercicios paso a paso para aprender nuevos conceptos.",
+                "Auto-evaluación": "Evalúa tu comprensión mediante pruebas o preguntas de práctica.",
+                "Estudio en profundidad": "Explora el material de manera exhaustiva y detallada.",
+                "Práctica extensiva": "Realiza una gran cantidad de ejercicios para dominar los conceptos.",
+                "Múltiples recursos": "Utiliza diversas fuentes de información para enriquecer tu aprendizaje.",
+                "Auriculares con audio ambiental": "Usa sonidos ambientales para bloquear distracciones.",
+                "App Forest para concentración": "Emplea aplicaciones que te ayuden a mantener el enfoque.",
+                "Estudio en biblioteca": "Busca espacios silenciosos y dedicados al estudio.",
+                "Música instrumental": "Escucha música sin letra para crear un ambiente de concentración.",
+                "Establecer un horario fijo": "Crea una rutina de estudio con horarios consistentes.",
+                "Organización del espacio": "Mantén tu área de estudio ordenada y libre de distracciones.",
+                "Lectura profunda": "Dedica tiempo a leer detenidamente y comprender el material.",
+                "Meditación antes de estudiar": "Practica meditación para preparar tu mente para el estudio.",
+                "Ambiente de estudio fijo": "Designa un espacio específico exclusivamente para estudiar."
+            };
+            
+            return descripciones[nombre] || "Método de estudio efectivo para optimizar tu aprendizaje.";
+        }
+
+        // Función para actualizar la explicación
+        function actualizarExplicacion(perfil) {
+            let explicacion = "";
+            
+            switch(perfil.estilo_aprendizaje) {
+                case "visual":
+                    explicacion = "Como tienes un estilo de aprendizaje visual, te recomendamos métodos que involucren imágenes, diagramas y representaciones gráficas. Estos métodos te ayudarán a procesar y recordar mejor la información mediante estímulos visuales.";
+                    break;
+                case "auditivo":
+                    explicacion = "Como tienes un estilo de aprendizaje auditivo, te recomendamos métodos que involucren escuchar, hablar y discutir los conceptos. Tu memoria auditiva es tu fortaleza, así que aprovecha recursos sonoros y la verbalización para mejorar tu retención.";
+                    break;
+                case "kinestesico":
+                    explicacion = "Como tienes un estilo de aprendizaje kinestésico, te recomendamos métodos que involucren movimiento, práctica física y experiencia directa. Aprenderás mejor cuando puedas interactuar físicamente con el material y aplicar los conceptos en situaciones reales.";
+                    break;
+            }
+            
+            // Añadir información sobre concentración
+            if (perfil.nivel_concentracion === "bajo") {
+                explicacion += " Dada tu dificultad para mantener la concentración, hemos incluido técnicas específicas para mejorar tu enfoque y gestionar mejor tu tiempo de estudio.";
+            } else if (perfil.nivel_concentracion === "alto") {
+                explicacion += " Tu alta capacidad de concentración te permite aprovechar métodos que requieren periodos prolongados de atención profunda.";
+            }
+            
+            // Añadir información sobre tiempo disponible
+            if (perfil.tiempo_disponible === "menos_2_horas") {
+                explicacion += " Considerando tu tiempo limitado, hemos priorizado métodos eficientes que maximizan el aprendizaje en sesiones cortas.";
+            } else if (perfil.tiempo_disponible === "mas_4_horas") {
+                explicacion += " Con tu disponibilidad de tiempo extensa, puedes aprovechar métodos más profundos y exhaustivos que requieren mayor dedicación.";
+            }
+            
+            // Añadir información sobre entorno
+            if (perfil.entorno_estudio === "ruidoso") {
+                explicacion += " Para contrarrestar las distracciones de tu entorno ruidoso, hemos incluido estrategias que te ayudarán a crear un espacio mental de concentración.";
+            } else if (perfil.entorno_estudio === "silencioso") {
+                explicacion += " Tu entorno silencioso es ideal para métodos que requieren alta concentración y atención sostenida.";
+            }
+            
+            explanationText.textContent = explicacion;
+        }
+
+        // Función para reiniciar el formulario
+        function reiniciarFormulario() {
+            estiloSelect.value = "visual";
+            concentracionSelect.value = "bajo";
+            tiempoSelect.value = "menos_2_horas";
+            entornoSelect.value = "ruidoso";
+            
+            resultsPlaceholder.classList.remove('hidden');
+            recommendationsContainer.classList.add('hidden');
+            explanationContainer.classList.add('hidden');
+            
+            // Habilitar selects
+            estiloSelect.disabled = false;
+            concentracionSelect.disabled = false;
+            tiempoSelect.disabled = false;
+            entornoSelect.disabled = false;
+            recomendarBtn.disabled = false;
+        }
+
+        // Función para mostrar información del sistema
+        function mostrarInformacion() {
+            alert("Sistema de Recomendación de Métodos de Estudio\n\n" +
+                  "Este sistema utiliza un enfoque basado en reglas para recomendar métodos de estudio personalizados según tu perfil de aprendizaje.\n\n" +
+                  "Desarrollado como parte del proyecto de Inteligencia Artificial del Tecnológico Nacional de México - Campus Orizaba.\n\n" +
+                  "El sistema analiza:\n" +
+                  "- Tu estilo de aprendizaje (visual, auditivo o kinestésico)\n" +
+                  "- Tu nivel de concentración\n" +
+                  "- Tu tiempo disponible para estudiar\n" +
+                  "- Tu entorno de estudio\n\n" +
+                  "Basándose en estos factores, genera recomendaciones personalizadas con enlaces a recursos útiles.");
+        }
+
+        // Event Listeners
+        recomendarBtn.addEventListener('click', function() {
+            generarRecomendaciones();
+            
+            // Deshabilitar formulario después de generar recomendaciones
+            estiloSelect.disabled = true;
+            concentracionSelect.disabled = true;
+            tiempoSelect.disabled = true;
+            entornoSelect.disabled = true;
+            recomendarBtn.disabled = true;
+        });
+        
+        resetBtn.addEventListener('click', reiniciarFormulario);
+        infoBtn.addEventListener('click', mostrarInformacion);
+    </script>
+</body>
+</html>
